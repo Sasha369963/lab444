@@ -2,47 +2,39 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Завантаження зображення
-image = cv2.imread('text_image.png', 0)  # Змінити на шлях до вашого зображення
+# Load the uploaded image
+image_path = "/mnt/data/Знімок екрана 2024-12-25 231712.png"
+image = cv2.imread(image_path, 0)
 
-# Бінаризація зображення
+# Binary thresholding
 _, binary_image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY)
 
-# Структурний елемент
+# Structuring element
 kernel = np.ones((5, 5), np.uint8)
 
-# Ерозія
+# Morphological operations
 eroded_image = cv2.erode(binary_image, kernel, iterations=1)
-
-# Дилатація
 dilated_image = cv2.dilate(binary_image, kernel, iterations=1)
-
-# Розмикання
 opened_image = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel)
-
-# Замикання
 closed_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel)
-
-# Границі
 gradient_image = cv2.morphologyEx(binary_image, cv2.MORPH_GRADIENT, kernel)
 
-# Відображення результатів
-images = [binary_image, eroded_image, dilated_image, opened_image, closed_image, gradient_image]
-titles = ['Original', 'Erosion', 'Dilation', 'Opening', 'Closing', 'Gradient']
+# Plot and save results
+results = {
+    "Original": binary_image,
+    "Erosion": eroded_image,
+    "Dilation": dilated_image,
+    "Opening": opened_image,
+    "Closing": closed_image,
+    "Gradient": gradient_image
+}
 
-plt.figure(figsize=(12, 8))
-for i in range(len(images)):
-    plt.subplot(2, 3, i+1)
-    plt.imshow(images[i], cmap='gray')
-    plt.title(titles[i])
-    plt.axis('off')
+# Save results and show
+output_paths = {}
+for title, img in results.items():
+    output_path = f"/mnt/data/{title.lower()}_image.png"
+    cv2.imwrite(output_path, img)
+    output_paths[title] = output_path
 
-plt.tight_layout()
-plt.show()
+output_paths
 
-# Збереження результатів
-cv2.imwrite('eroded_image.png', eroded_image)
-cv2.imwrite('dilated_image.png', dilated_image)
-cv2.imwrite('opened_image.png', opened_image)
-cv2.imwrite('closed_image.png', closed_image)
-cv2.imwrite('gradient_image.png', gradient_image)
